@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
 
 
   s.name         = "KKObserver"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.summary      = "响应式数据对象"
   s.description  = "响应式数据对象, UI开发解耦小工具"
 
@@ -20,8 +20,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "8.0"
   s.source       = { :git => "https://github.com/hailongz/KKObserver.git", :tag => "#{s.version}" }
 
-  s.frameworks = 'Foundation'
-  s.vendored_frameworks = 'KKObserver/Products/KKObserver.framework'
+  s.vendored_frameworks = 'KKObserver.framework'
   s.requires_arc = true
 
 end
