@@ -131,9 +131,9 @@
     
     id v = self.object;
     
-    for(NSString * key in [v keySet]) {
+    for(NSString * key in [v kk_keySet]) {
         NSArray * keys = @[key];
-        [object set:keys value:[v get:keys defaultValue:nil]];
+        [object kk_set:keys value:[v get:keys defaultValue:nil]];
     }
 }
 
@@ -382,19 +382,32 @@ static JSContext * MainJSContext = nil;
 
 @implementation NSObject(KKObserver)
 
--(id) get:(NSArray *) keys defaultValue:(id) defaultValue {
+-(id) kk_getValue:(NSString *) key {
+    @try {
+        return [self valueForKey:key];
+    }
+    @catch(NSException * ex) {
+        NSLog(@"[KK] %@",ex);
+    }
+    return nil;
+}
+
+-(void) kk_setValue:(NSString *) key value:(id) value {
+    @try {
+        return [self setValue:value forKey:key];
+    }
+    @catch(NSException * ex) {
+        NSLog(@"[KK] %@",ex);
+    }
+}
+
+-(id) kk_get:(NSArray *) keys defaultValue:(id) defaultValue {
     
     id v = self;
     
     for(NSString * key in keys) {
         
-        @try {
-            v = [v valueForKey:key];
-        }
-        @catch(NSException *ex){
-            v = nil;
-            NSLog(@"[KK] %@",ex);
-        }
+        v = [v kk_getValue:key];
         
         if(v == nil) {
             break;
@@ -404,7 +417,7 @@ static JSContext * MainJSContext = nil;
     return v;
 }
 
--(void) set:(NSArray *) keys value:(id) value {
+-(void) kk_set:(NSArray *) keys value:(id) value {
     
     id v = self;
     
@@ -414,18 +427,14 @@ static JSContext * MainJSContext = nil;
         
         NSString * key = [keys objectAtIndex:i];
         
-        @try {
-            id vv = [v valueForKey:key];
-            if(vv == nil) {
-                vv = [NSMutableDictionary dictionaryWithCapacity:4];
-                [v setValue:vv forKey:key];
-            }
-            v = vv;
+        id vv = [v kk_getValue:key];
+        
+        if(vv == nil) {
+            vv = [NSMutableDictionary dictionaryWithCapacity:4];
+            [v kk_setValue:key value:vv];
         }
-        @catch(NSException *ex){
-            v = nil;
-            NSLog(@"[KK] %@",ex);
-        }
+        
+        v = vv;
         
         if(v == nil) {
             break;
@@ -438,18 +447,14 @@ static JSContext * MainJSContext = nil;
         
         NSString * key = [keys objectAtIndex:i];
         
-        @try {
-            [v setValue:value forKey:key];
-        }
-        @catch(NSException *ex){
-            NSLog(@"[KK] %@",ex);
-        }
+        [v kk_setValue:key value:value];
+        
     }
     
     
 }
 
--(NSSet *) keySet {
+-(NSSet *) kk_keySet {
     
     NSMutableSet * keys = [NSMutableSet setWithCapacity:4];
     
@@ -479,7 +484,7 @@ static JSContext * MainJSContext = nil;
 
 @implementation NSArray(KKObserver)
 
--(id) valueForKey:(NSString *)key {
+-(id) kk_getValue:(NSString *)key{
     
     if([@"length" isEqualToString:key]) {
         return @([self count]);
@@ -494,7 +499,7 @@ static JSContext * MainJSContext = nil;
     return nil;
 }
 
--(NSSet *) keySet {
+-(NSSet *) kk_keySet {
     NSMutableSet * keys = [NSMutableSet setWithCapacity:4];
     for(NSInteger i= 0;i<[self count];i++) {
         [keys addObject:[NSString stringWithFormat:@"%ld",i]];
@@ -506,7 +511,7 @@ static JSContext * MainJSContext = nil;
 
 @implementation NSDictionary(KKObserver)
 
--(NSSet *) keySet {
+-(NSSet *) kk_keySet {
     NSMutableSet * keys = [NSMutableSet setWithCapacity:4];
     NSEnumerator * keyEnum = [self keyEnumerator];
     NSString * key;

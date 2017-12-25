@@ -70,11 +70,16 @@ JSExportAs(off,
 
 @interface NSObject(KKObserver)
 
--(id) get:(NSArray *) keys defaultValue:(id) defaultValue;
+-(id) kk_getValue:(NSString *) key;
 
--(void) set:(NSArray *) keys value:(id) value;
+-(void) kk_setValue:(NSString *) key value:(id) value;
 
--(NSSet *) keySet;
+-(id) kk_get:(NSArray *) keys defaultValue:(id) defaultValue;
+
+-(void) kk_set:(NSArray *) keys value:(id) value;
+
+-(NSSet *) kk_keySet;
 
 @end
+
 
