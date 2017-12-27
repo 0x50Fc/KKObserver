@@ -70,6 +70,8 @@ JSExportAs(off,
 
 @interface NSObject(KKObserver)
 
+@property(nonatomic,strong,readonly) KKObserver * kk_Observer;
+
 -(id) kk_getValue:(NSString *) key;
 
 -(void) kk_setValue:(NSString *) key value:(id) value;
@@ -79,6 +81,10 @@ JSExportAs(off,
 -(void) kk_set:(NSArray *) keys value:(id) value;
 
 -(NSSet *) kk_keySet;
+
+-(NSString *) kk_stringValue;
+
+-(NSString *) kk_getString:(NSString *) key;
 
 @end
 

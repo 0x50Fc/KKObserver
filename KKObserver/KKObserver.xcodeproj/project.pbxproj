@@ -7,16 +7,16 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		AC871F4B1FD547820078923F /* KKAggregate */ = {
+		AC871F4B1FD547820078923F /* KKObserver.framework */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = AC871F4C1FD547820078923F /* Build configuration list for PBXAggregateTarget "KKAggregate" */;
+			buildConfigurationList = AC871F4C1FD547820078923F /* Build configuration list for PBXAggregateTarget "KKObserver.framework" */;
 			buildPhases = (
 				AC871F511FD547890078923F /* ShellScript */,
 			);
 			dependencies = (
 				AC871F501FD547870078923F /* PBXTargetDependency */,
 			);
-			name = KKAggregate;
+			name = KKObserver.framework;
 			productName = KKAggregate;
 		};
 /* End PBXAggregateTarget section */
@@ -237,7 +237,7 @@
 			targets = (
 				AC871F1C1FD4F4030078923F /* KKObserver */,
 				AC871F2D1FD50EAA0078923F /* demo */,
-				AC871F4B1FD547820078923F /* KKAggregate */,
+				AC871F4B1FD547820078923F /* KKObserver.framework */,
 			);
 		};
 /* End PBXProject section */
@@ -555,7 +555,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AC871F4C1FD547820078923F /* Build configuration list for PBXAggregateTarget "KKAggregate" */ = {
+		AC871F4C1FD547820078923F /* Build configuration list for PBXAggregateTarget "KKObserver.framework" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AC871F4D1FD547820078923F /* Debug */,

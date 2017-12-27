@@ -14,6 +14,7 @@
     
 }
 
+@property(nonatomic,assign) NSInteger identify;
 @property(nonatomic,strong) NSArray * keys;
 @property(nonatomic,strong) JSValue * evaluateScript;
 @property(nonatomic,strong) KKObserverFunction func;
@@ -34,12 +35,13 @@
 
 -(void) remove:(NSArray *) keys idx:(int) idx func:(KKObserverFunction) func jsFunction:(JSValue *) jsFunction context:(void *) context;
 
--(void) changeKeys:(NSArray *) keys idx:(int) idx ofObject:(id) object;
+-(void) changeKeys:(NSArray *) keys idx:(int) idx callbacks:(NSMutableArray *) callbacks;
 
 @end
 
 @interface KKObserver() {
     KKKeyObserver * _keyObserver;
+    NSUInteger _identify;
 }
 
 @end
@@ -55,6 +57,10 @@
         _jsContext = jsContext;
         _object = object;
         _keyObserver = [[KKKeyObserver alloc] init];
+        
+        _jsContext[@"print"] = ^(void){
+            NSLog(@"[KK] %@",[JSContext currentArguments]);
+        };
     }
     return self;
 }
@@ -78,12 +84,16 @@
     v = [v stringByReplacingOccurrencesOfString:@"'.*?'" withString:@"''" options:NSRegularExpressionSearch range:NSMakeRange(0, [v length])];
     
     v = [v stringByReplacingOccurrencesOfString:@"\".*?\"" withString:@"\"\"" options:NSRegularExpressionSearch range:NSMakeRange(0, [v length])];
-     
+    
     [pattern enumerateMatchesInString:v options:NSMatchingReportProgress range:NSMakeRange(0, [v length]) usingBlock:^(NSTextCheckingResult *  result, NSMatchingFlags flags, BOOL * stop) {
         
         if(result.range.length >0) {
             
             NSArray * keys = [[v substringWithRange:result.range] componentsSeparatedByString:@"."];
+            
+            if([keys count] ==0 || [keys[0] hasPrefix:@"_"]) {
+                return;
+            }
             
             cb(keys);
             
@@ -97,7 +107,8 @@
 -(void) on:(KKObserverFunction) func evaluateScript:(NSString *) evaluateScript context:(void *) context {
     
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
-    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { _G = e + ''; } return _G; })",evaluateScript]];
+    cb.identify = ++ _identify;
+    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { print(e); _G = ''; } return _G; })",evaluateScript]];
     cb.context = context;
     cb.func = func;
     
@@ -111,6 +122,7 @@
 
 -(void) on:(KKObserverFunction) func keys:(NSArray *) keys children:(BOOL) children context:(void *) context {
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
+    cb.identify = ++ _identify;
     cb.keys = keys;
     cb.context = context;
     cb.func = func;
@@ -133,7 +145,7 @@
     
     for(NSString * key in [v kk_keySet]) {
         NSArray * keys = @[key];
-        [object kk_set:keys value:[v get:keys defaultValue:nil]];
+        [object kk_set:keys value:[v kk_get:keys defaultValue:nil]];
     }
 }
 
@@ -144,7 +156,21 @@
 }
 
 -(void) changeKeys:(NSArray *) keys {
-    [_keyObserver changeKeys:keys idx:0 ofObject:[self ofObject]];
+    NSMutableArray * callbacks = [NSMutableArray arrayWithCapacity:4];
+    id ofObject = [self ofObject];
+    [_keyObserver changeKeys:keys idx:0 callbacks:callbacks];
+    [callbacks sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        NSInteger r = [(KKKeyObserverCallback *) obj1 identify] - [(KKKeyObserverCallback *) obj2 identify];
+        if(r == 0) {
+            return NSOrderedSame;
+        } else if(r > 0) {
+            return NSOrderedDescending;
+        }
+        return NSOrderedAscending;
+    }];
+    for(KKKeyObserverCallback * cb in callbacks) {
+        [cb changeKeys:keys ofObject:ofObject];
+    }
 }
 
 -(id) get:(NSArray *) keys defaultValue:(id) defaultValue {
@@ -156,7 +182,7 @@
         if([keys count] == 0) {
             v = _object;
         } else {
-            v = [_object get:keys defaultValue:nil];
+            v = [_object kk_get:keys defaultValue:nil];
         }
     }
     
@@ -165,7 +191,7 @@
     }
     
     if(_parent != nil) {
-        return [_parent get:keys defaultValue:defaultValue];
+        return [_parent kk_get:keys defaultValue:defaultValue];
     }
     
     return defaultValue;
@@ -178,7 +204,7 @@
         if(_object == nil) {
             _object = [[NSMutableDictionary alloc] initWithCapacity:4];
         }
-        [_object set:keys value:value];
+        [_object kk_set:keys value:value];
     }
     [self changeKeys:keys];
 }
@@ -205,7 +231,7 @@
         return nil;
     }
     
-    JSValue * v = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object){ _G = (%@); } } catch(e) { _G = e + ''; } return _G; })",evaluateScript]];
+    JSValue * v = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object){ _G = (%@); } } catch(e) { print(e); _G = ''; } return _G; })",evaluateScript]];
     
     if(v != nil) {
         v = [v callWithArguments:[NSArray arrayWithObject:_object]];
@@ -225,7 +251,7 @@
 -(void) onJSFunction:(JSValue *) func evaluateScript:(NSString *) evaluateScript context:(JSValue *) context{
     
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
-    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { _G = e; } return _G; })",evaluateScript]];
+    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { print(e); _G = ''; } return _G; })",evaluateScript]];
     cb.context = (__bridge void *) context;
     cb.jsFunction = func;
     
@@ -267,7 +293,7 @@ static JSContext * MainJSContext = nil;
     if(_evaluateScript != nil) {
         v = [[_evaluateScript callWithArguments:[NSArray arrayWithObjects:object, nil]] toObject];
     } else if(_keys != nil) {
-        v = [object get:_keys defaultValue:nil];
+        v = [object kk_get:_keys defaultValue:nil];
     }
     
     if(_func != nil) {
@@ -338,40 +364,32 @@ static JSContext * MainJSContext = nil;
     }
 }
 
--(void) changeKeys:(NSArray *) keys idx:(int) idx ofObject:(id) object {
+-(void) changeKeys:(NSArray *) keys idx:(int) idx callbacks:(NSMutableArray *)callbacks {
     
     if(idx < [keys count]) {
         
         NSString * key = [keys objectAtIndex:idx];
         KKKeyObserver * v = [_children objectForKey:key];
         
-        [v changeKeys:keys idx:idx + 1 ofObject:object];
-        
-        NSMutableArray * cbs = [NSMutableArray arrayWithCapacity:4];
+        [v changeKeys:keys idx:idx + 1 callbacks:callbacks];
         
         for(KKKeyObserverCallback * cb in _callbacks) {
             if(cb.children) {
-                [cbs addObject:cb];
+                [callbacks addObject:cb];
             }
-        }
-        
-        for(KKKeyObserverCallback * cb in cbs) {
-            [cb changeKeys:keys ofObject:object];
         }
         
     } else {
         
         if(_callbacks != nil) {
             
-            for(KKKeyObserverCallback * cb in [NSArray arrayWithArray:_callbacks]) {
-                [cb changeKeys:keys ofObject:object];
-            }
+            [callbacks addObjectsFromArray:_callbacks];
             
         }
         
         if(_children != nil) {
             for(KKKeyObserver * v in [NSArray arrayWithArray:[_children allValues]]) {
-                [v changeKeys:keys idx:idx ofObject:object];
+                [v changeKeys:keys idx:idx callbacks:callbacks];
             }
         }
     }
@@ -381,6 +399,29 @@ static JSContext * MainJSContext = nil;
 @end
 
 @implementation NSObject(KKObserver)
+
+-(NSString *) kk_stringValue {
+    if([self isKindOfClass:[NSString class]]) {
+        return (NSString *) self;
+    }
+    if([self respondsToSelector:@selector(stringValue)]){
+        return [(NSNumber *) self stringValue];
+    }
+    return nil;
+}
+
+-(NSString *) kk_getString:(NSString *) key {
+    return [[self kk_getValue:key] kk_stringValue];
+}
+
+-(KKObserver *) kk_Observer {
+    KKObserver * v = objc_getAssociatedObject(self, "_kk_Observer");
+    if(v == nil) {
+        v = [[KKObserver alloc] init];
+        objc_setAssociatedObject(self, "_kk_Observer", v, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return v;
+}
 
 -(id) kk_getValue:(NSString *) key {
     @try {
