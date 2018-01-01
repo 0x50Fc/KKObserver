@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
 
 
   s.name         = "KKObserver"
-  s.version      = "1.0.2"
+  s.version      = "1.0.3"
   s.summary      = "响应式数据对象"
   s.description  = "响应式数据对象, UI开发解耦小工具"
 

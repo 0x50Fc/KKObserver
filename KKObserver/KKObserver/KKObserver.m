@@ -14,7 +14,7 @@
     
 }
 
-@property(nonatomic,assign) NSInteger identify;
+@property(nonatomic,assign) NSInteger priority;
 @property(nonatomic,strong) NSArray * keys;
 @property(nonatomic,strong) JSValue * evaluateScript;
 @property(nonatomic,strong) KKObserverFunction func;
@@ -41,7 +41,6 @@
 
 @interface KKObserver() {
     KKKeyObserver * _keyObserver;
-    NSUInteger _identify;
 }
 
 @end
@@ -152,7 +151,6 @@
 -(void) on:(KKObserverFunction) func evaluateScript:(NSString *) evaluateScript context:(void *) context {
     
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
-    cb.identify = ++ _identify;
     cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { print(e); _G = undefined; } return _G; })",evaluateScript]];
     cb.context = context;
     cb.func = func;
@@ -166,12 +164,12 @@
 }
 
 -(void) on:(KKObserverFunction) func keys:(NSArray *) keys children:(BOOL) children context:(void *) context {
-    [self on:func keys:keys children:children identity: ++ _identify context:context];
+    [self on:func keys:keys children:children priority: 0 context:context];
 }
 
--(void) on:(KKObserverFunction) func keys:(NSArray *) keys children:(BOOL) children identity:(NSUInteger) identity context:(void *) context {
+-(void) on:(KKObserverFunction) func keys:(NSArray *) keys children:(BOOL) children priority:(NSInteger) priority context:(void *) context {
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
-    cb.identify = identity;
+    cb.priority = priority;
     cb.keys = keys;
     cb.context = context;
     cb.func = func;
@@ -209,10 +207,10 @@
     id ofObject = [self ofObject];
     [_keyObserver changeKeys:keys idx:0 callbacks:callbacks];
     [callbacks sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-        NSInteger r = [(KKKeyObserverCallback *) obj1 identify] - [(KKKeyObserverCallback *) obj2 identify];
+        NSInteger r = [(KKKeyObserverCallback *) obj1 priority] - [(KKKeyObserverCallback *) obj2 priority];
         if(r == 0) {
             return NSOrderedSame;
-        } else if(r > 0) {
+        } else if(r < 0) {
             return NSOrderedDescending;
         }
         return NSOrderedAscending;
