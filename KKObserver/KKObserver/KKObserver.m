@@ -91,6 +91,17 @@
         _object = object;
         _keyObserver = [[KKKeyObserver alloc] init];
         
+        jsContext.exceptionHandler = ^(JSContext *context, JSValue *v) {
+            if([v hasProperty:@"column"] && [v hasProperty:@"line"]) {
+                NSLog(@"[KK] (%@,%@) %@"
+                      ,[[v valueForProperty:@"line"] toObject]
+                      ,[[v valueForProperty:@"column"] toObject]
+                      ,[v description]);
+            } else {
+                NSLog(@"[KK] %@",[v description]);
+            }
+        };
+        
         _jsContext[@"print"] = ^(void){
             
             for(JSValue * v in [JSContext currentArguments]) {
