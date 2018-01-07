@@ -41,6 +41,8 @@
 
 @interface KKObserver() {
     KKKeyObserver * _keyObserver;
+    NSInteger _priorityDesc;
+    NSInteger _priorityAsc;
 }
 
 @end
@@ -87,6 +89,8 @@
 
 -(instancetype) initWithJSContext:(JSContext *) jsContext object:(id) object {
     if((self = [super init])) {
+        _priorityDesc = INT32_MAX;
+        _priorityAsc = INT32_MIN;
         _jsContext = jsContext;
         _object = object;
         _keyObserver = [[KKKeyObserver alloc] init];
@@ -160,11 +164,22 @@
 }
 
 -(void) on:(KKObserverFunction) func evaluateScript:(NSString *) evaluateScript context:(void *) context {
+    [self on:func evaluateScript:evaluateScript priority:KKOBSERVER_PRIORITY_NORMAL context:context];
+}
+
+-(void) on:(KKObserverFunction) func evaluateScript:(NSString *) evaluateScript priority:(NSInteger) priority context:(void *) context {
     
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
     cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { print(e); _G = undefined; } return _G; })",evaluateScript]];
     cb.context = context;
     cb.func = func;
+    if(priority == KKOBSERVER_PRIORITY_ASC) {
+        cb.priority = (++ _priorityAsc);
+    } else if(priority == KKOBSERVER_PRIORITY_DESC) {
+        cb.priority = (-- _priorityDesc);
+    } else {
+        cb.priority = priority;
+    }
     
     [self on:^(NSArray *keys) {
         
@@ -180,7 +195,13 @@
 
 -(void) on:(KKObserverFunction) func keys:(NSArray *) keys children:(BOOL) children priority:(NSInteger) priority context:(void *) context {
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
-    cb.priority = priority;
+    if(priority == KKOBSERVER_PRIORITY_ASC) {
+        cb.priority = (++ _priorityAsc);
+    } else if(priority == KKOBSERVER_PRIORITY_DESC) {
+        cb.priority = (-- _priorityDesc);
+    } else {
+        cb.priority = priority;
+    }
     cb.keys = keys;
     cb.context = context;
     cb.func = func;
