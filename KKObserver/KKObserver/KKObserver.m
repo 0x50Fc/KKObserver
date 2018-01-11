@@ -170,7 +170,7 @@
 -(void) on:(KKObserverFunction) func evaluateScript:(NSString *) evaluateScript priority:(NSInteger) priority context:(void *) context {
     
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
-    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { print(e); _G = undefined; } return _G; })",evaluateScript]];
+    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { _G = undefined; } return _G; })",evaluateScript]];
     cb.context = context;
     cb.func = func;
     if(priority == KKOBSERVER_PRIORITY_ASC) {
@@ -239,10 +239,11 @@
     id ofObject = [self ofObject];
     [_keyObserver changeKeys:keys idx:0 callbacks:callbacks];
     [callbacks sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-        NSInteger r = [(KKKeyObserverCallback *) obj1 priority] - [(KKKeyObserverCallback *) obj2 priority];
-        if(r == 0) {
+        NSInteger a = [(KKKeyObserverCallback *) obj1 priority];
+        NSInteger b = [(KKKeyObserverCallback *) obj2 priority];
+        if(a == b) {
             return NSOrderedSame;
-        } else if(r < 0) {
+        } else if(a < b) {
             return NSOrderedDescending;
         }
         return NSOrderedAscending;
@@ -310,7 +311,7 @@
         return nil;
     }
     
-    JSValue * v = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object){ _G = (%@); } } catch(e) { print(e); _G = undefined; } return _G; })",evaluateScript]];
+    JSValue * v = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object){ _G = (%@); } } catch(e) { _G = undefined; } return _G; })",evaluateScript]];
     
     if(v != nil) {
         v = [v callWithArguments:[NSArray arrayWithObject:_object]];
@@ -334,7 +335,7 @@
 -(void) onJSFunctionEvaluateScript:(NSString *) evaluateScript fn:(JSValue *) func  context:(JSValue *) context{
     
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
-    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { print(e); _G = undefined; } return _G; })",evaluateScript]];
+    cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { _G = undefined; } return _G; })",evaluateScript]];
     cb.context = (__bridge void *) context;
     cb.jsFunction = func;
     
