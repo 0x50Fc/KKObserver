@@ -22,7 +22,7 @@
 @property(nonatomic,assign) void * context;
 @property(nonatomic,assign) BOOL children;
 
--(void) changeKeys:(NSArray *) keys ofObject:(id) object;
+-(void) changeKeys:(NSArray *) keys observer:(KKObserver *) observer;
 
 @end
 
@@ -70,9 +70,11 @@
         
         [_parent on:^(id value, NSArray *changedKeys, void *context) {
             if(v) {
-                [v changeKeys:changedKeys];
+                [v kk_set:changedKeys value:value];
             }
         } keys:@[] children:YES context:(__bridge void *)self];
+        
+        [_object setDictionary:[_parent object]];
         
         [self changeKeys:@[]];
         
@@ -87,7 +89,7 @@
     return [self initWithJSContext:jsContext object:[NSMutableDictionary dictionaryWithCapacity:4]];
 }
 
--(instancetype) initWithJSContext:(JSContext *) jsContext object:(id) object {
+-(instancetype) initWithJSContext:(JSContext *) jsContext object:(NSMutableDictionary *) object {
     if((self = [super init])) {
         _priorityDesc = INT32_MAX;
         _priorityAsc = INT32_MIN;
@@ -217,26 +219,8 @@
     [_keyObserver remove:keys idx:0 func:func jsFunction:nil context:context];
 }
 
--(void) ofObject:(NSMutableDictionary *) object {
-    [_parent ofObject:object];
-    
-    id v = self.object;
-    
-    for(NSString * key in [v kk_keySet]) {
-        NSArray * keys = @[key];
-        [object kk_set:keys value:[v kk_get:keys defaultValue:nil]];
-    }
-}
-
--(id) ofObject{
-    NSMutableDictionary * object = [NSMutableDictionary dictionaryWithCapacity:4];
-    [self ofObject:object];
-    return object;
-}
-
 -(void) changeKeys:(NSArray *) keys {
     NSMutableArray * callbacks = [NSMutableArray arrayWithCapacity:4];
-    id ofObject = [self ofObject];
     [_keyObserver changeKeys:keys idx:0 callbacks:callbacks];
     [callbacks sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
         NSInteger a = [(KKKeyObserverCallback *) obj1 priority];
@@ -249,7 +233,7 @@
         return NSOrderedAscending;
     }];
     for(KKKeyObserverCallback * cb in callbacks) {
-        [cb changeKeys:keys ofObject:ofObject];
+        [cb changeKeys:keys observer:self];
     }
 }
 
@@ -370,19 +354,19 @@ static JSContext * MainJSContext = nil;
 
 @implementation KKKeyObserverCallback
 
--(void) changeKeys:(NSArray *) keys ofObject:(id) object {
+-(void) changeKeys:(NSArray *) keys observer:(KKObserver *) observer {
     
     id v = nil;
     
     if(_evaluateScript != nil) {
-        v = [_evaluateScript callWithArguments:[NSArray arrayWithObjects:object, nil]];
+        v = [_evaluateScript callWithArguments:[NSArray arrayWithObjects:[observer object], nil]];
         if([v isNull] || [v isUndefined]) {
             v = nil;
         } else {
             v = [v toObject];
         }
     } else if(_keys != nil) {
-        v = [object kk_get:_keys defaultValue:nil];
+        v = [observer kk_get:_keys defaultValue:nil];
     }
     
     if(_func != nil) {

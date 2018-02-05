@@ -45,16 +45,16 @@ JSExportAs(off,
 
 @end
 
-@interface KKObserver : NSDictionary<KKObserver> {
+@interface KKObserver : NSObject<KKObserver> {
     
 }
 
-@property(nonatomic,strong) id object;
+@property(nonatomic,strong) NSMutableDictionary * object;
 @property(nonatomic,weak) KKObserver * parent;
 @property(nonatomic,strong,readonly) JSContext *jsContext;
 
 -(instancetype) initWithJSContext:(JSContext *) jsContext;
--(instancetype) initWithJSContext:(JSContext *) jsContext object:(id) object;
+-(instancetype) initWithJSContext:(JSContext *) jsContext object:(NSMutableDictionary *) object;
 -(instancetype) init;
 -(instancetype) initWithObject:(id) object;
 
