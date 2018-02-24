@@ -70,7 +70,7 @@
         
         [_parent on:^(id value, NSArray *changedKeys, void *context) {
             if(v) {
-                [v kk_set:changedKeys value:value];
+                [v set:changedKeys value:[value kk_get:changedKeys defaultValue:nil]];
             }
         } keys:@[] children:YES context:(__bridge void *)self];
         
@@ -366,7 +366,7 @@ static JSContext * MainJSContext = nil;
             v = [v toObject];
         }
     } else if(_keys != nil) {
-        v = [observer kk_get:_keys defaultValue:nil];
+        v = [observer get:_keys defaultValue:nil];
     }
     
     if(_func != nil) {
