@@ -308,7 +308,7 @@
     return [v toObject];
 }
 
--(void) onJSFunctionKeys:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context {
+-(void) on:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context {
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
     cb.keys = keys;
     cb.context = (__bridge void *) context;
@@ -316,7 +316,7 @@
     [_keyObserver add:keys idx:0 cb:cb];
 }
 
--(void) onJSFunctionEvaluateScript:(NSString *) evaluateScript fn:(JSValue *) func  context:(JSValue *) context{
+-(void) onEvaluateScript:(NSString *) evaluateScript fn:(JSValue *) func  context:(JSValue *) context{
     
     KKKeyObserverCallback * cb = [[KKKeyObserverCallback alloc] init];
     cb.evaluateScript = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object) { _G = (%@); } } catch(e) { _G = undefined; } return _G; })",evaluateScript]];
@@ -330,7 +330,7 @@
     } evaluateScript:evaluateScript];
 }
 
--(void) offJSFunctionKeys:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context {
+-(void) off:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context {
     [_keyObserver remove:keys idx:0 func:nil jsFunction:func context:(__bridge void *) context];
 }
 

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <KKObserver/KKJSObserver.h>
 
 #define KKOBSERVER_PRIORITY_ASC -1
 #define KKOBSERVER_PRIORITY_LOW INT32_MIN
@@ -17,35 +18,8 @@
 
 typedef void (^KKObserverFunction)(id value,NSArray * changedKeys,void * context);
 
-@protocol KKObserver<JSExport>
 
-JSExportAs(changeKeys,
--(void) changeKeys:(NSArray *) keys
-);
-
-JSExportAs(get,
--(id) get:(NSArray *) keys defaultValue:(id) defaultValue
-);
-
-JSExportAs(set,
--(void) set:(NSArray *) keys value:(id) value
-);
-
-JSExportAs(on,
--(void) onJSFunctionKeys:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context
-);
-
-JSExportAs(evaluate,
--(void) onJSFunctionEvaluateScript:(NSString *) evaluateScript fn:(JSValue *) func context:(JSValue *) context
-);
-
-JSExportAs(off,
--(void) offJSFunctionKeys:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context
-);
-
-@end
-
-@interface KKObserver : NSObject<KKObserver> {
+@interface KKObserver : NSObject {
     
 }
 
@@ -58,6 +32,12 @@ JSExportAs(off,
 -(instancetype) init;
 -(instancetype) initWithObject:(id) object;
 
+-(void) changeKeys:(NSArray *) keys;
+
+-(id) get:(NSArray *) keys defaultValue:(id) defaultValue;
+
+-(void) set:(NSArray *) keys value:(id) value;
+
 -(void) on:(KKObserverFunction) func evaluateScript:(NSString *) evaluateScript priority:(NSInteger) priority context:(void *) context;
 
 -(void) on:(KKObserverFunction) func evaluateScript:(NSString *) evaluateScript context:(void *) context;
@@ -69,6 +49,12 @@ JSExportAs(off,
 -(void) on:(KKObserverFunction) func keys:(NSArray *) keys context:(void *) context;
 
 -(void) off:(KKObserverFunction) func keys:(NSArray *) keys context:(void *) context;
+
+-(void) on:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context;
+
+-(void) onEvaluateScript:(NSString *) evaluateScript fn:(JSValue *) func  context:(JSValue *) context;
+
+-(void) off:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context ;
 
 -(id) evaluateScript:(NSString*) evaluateScript;
 

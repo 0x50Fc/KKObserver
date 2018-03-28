@@ -22,6 +22,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		1A3253B9206BC4B10053E65E /* KKJSObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A3253B7206BC4B10053E65E /* KKJSObserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A3253BA206BC4B20053E65E /* KKJSObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3253B8206BC4B10053E65E /* KKJSObserver.m */; };
 		AC871F221FD4F4030078923F /* KKObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = AC871F201FD4F4030078923F /* KKObserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AC871F291FD4F87F0078923F /* KKObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = AC871F281FD4F87F0078923F /* KKObserver.m */; };
 		AC871F321FD50EAA0078923F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AC871F311FD50EAA0078923F /* AppDelegate.m */; };
@@ -52,6 +54,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1A3253B7206BC4B10053E65E /* KKJSObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KKJSObserver.h; sourceTree = "<group>"; };
+		1A3253B8206BC4B10053E65E /* KKJSObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KKJSObserver.m; sourceTree = "<group>"; };
 		AC871F1D1FD4F4030078923F /* KKObserver.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KKObserver.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC871F201FD4F4030078923F /* KKObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KKObserver.h; sourceTree = "<group>"; };
 		AC871F211FD4F4030078923F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -113,6 +117,8 @@
 				AC871F201FD4F4030078923F /* KKObserver.h */,
 				AC871F281FD4F87F0078923F /* KKObserver.m */,
 				AC871F211FD4F4030078923F /* Info.plist */,
+				1A3253B7206BC4B10053E65E /* KKJSObserver.h */,
+				1A3253B8206BC4B10053E65E /* KKJSObserver.m */,
 			);
 			path = KKObserver;
 			sourceTree = "<group>";
@@ -157,6 +163,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AC871F221FD4F4030078923F /* KKObserver.h in Headers */,
+				1A3253B9206BC4B10053E65E /* KKJSObserver.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +291,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A3253BA206BC4B20053E65E /* KKJSObserver.m in Sources */,
 				AC871F291FD4F87F0078923F /* KKObserver.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
