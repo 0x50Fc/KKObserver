@@ -20,6 +20,11 @@
     return self;
 }
 
+-(void) dealloc {
+    [_observer off:nil keys:@[] context:nil];
+    _observer = nil;
+}
+
 -(void) recycle {
     [_observer off:nil keys:@[] context:nil];
     _observer = nil;
