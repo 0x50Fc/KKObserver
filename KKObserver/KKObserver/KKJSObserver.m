@@ -21,12 +21,12 @@
 }
 
 -(void) dealloc {
-    [_observer off:nil keys:@[] context:nil];
+    [_observer off:nil keys:@[] context:(__bridge  void *)self];
     _observer = nil;
 }
 
 -(void) recycle {
-    [_observer off:nil keys:@[] context:nil];
+    [_observer off:nil keys:@[] context:(__bridge  void *)self];
     _observer = nil;
 }
 
@@ -42,16 +42,16 @@
     [_observer set:keys value:value];
 }
 
--(void) on:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context {
-    [_observer on:keys fn:func context:context];
+-(void) on:(NSArray *) keys fn:(JSValue *) func {
+    [_observer on:keys fn:func context:(__bridge  void *)self];
 }
 
--(void) onEvaluateScript:(NSString *) evaluateScript fn:(JSValue *) func  context:(JSValue *) context {
-    [_observer onEvaluateScript:evaluateScript fn:func context:context];
+-(void) onEvaluateScript:(NSString *) evaluateScript fn:(JSValue *) func {
+    [_observer onEvaluateScript:evaluateScript fn:func context:(__bridge  void *)self];
 }
 
--(void) off:(NSArray *) keys fn:(JSValue *) func context:(JSValue *) context {
-    [_observer off:keys fn:func context:context];
+-(void) off:(NSArray *) keys fn:(JSValue *) func {
+    [_observer off:keys fn:func context:(__bridge  void *)self];
 }
 
 -(instancetype) newObserver {
