@@ -37,6 +37,10 @@ JSExportAs(off,
            -(void) off:(NSArray *) keys fn:(JSValue *) func 
            );
 
+JSExportAs(evaluateScript,
+-(id) evaluateScript:(NSString*) evaluateScript
+           );
+
 @end
 
 @interface KKJSObserver : NSObject<KKJSObserver>

@@ -57,4 +57,9 @@
 -(instancetype) newObserver {
     return [[KKJSObserver alloc] initWithObserver:[_observer newObserver]];
 }
+
+-(id) evaluateScript:(NSString*) evaluateScript {
+    return [_observer evaluateScript:evaluateScript];
+}
+
 @end
