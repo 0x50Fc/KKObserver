@@ -51,6 +51,9 @@
 }
 
 -(void) off:(NSArray *) keys fn:(JSValue *) func {
+    if(![func isObject]) {
+        func = nil;
+    }
     [_observer off:keys fn:func context:(__bridge  void *)self];
 }
 
