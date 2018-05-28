@@ -304,7 +304,12 @@
     JSValue * v = [_jsContext evaluateScript:[NSString stringWithFormat:@"(function(object){ var _G; try { with(object){ _G = (%@); } } catch(e) { _G = undefined; } return _G; })",evaluateScript]];
     
     if(v != nil) {
-        v = [v callWithArguments:[NSArray arrayWithObject:_object]];
+        @try{
+            v = [v callWithArguments:[NSArray arrayWithObject:_object]];
+        }
+        @catch(NSException * ex) {
+            NSLog(@"[KK] %@",ex);
+        }
     }
     
     if([v isUndefined] || [v isNull]) {
@@ -365,7 +370,12 @@ static JSContext * MainJSContext = nil;
     id v = nil;
     
     if(_evaluateScript != nil) {
-        v = [_evaluateScript callWithArguments:[NSArray arrayWithObjects:[observer object], nil]];
+        @try{
+            v = [_evaluateScript callWithArguments:[NSArray arrayWithObjects:[observer object], nil]];
+        }
+        @catch(NSException * ex) {
+            NSLog(@"[KK] %@",ex);
+        }
         if([v isNull] || [v isUndefined]) {
             v = nil;
         } else {
@@ -383,7 +393,12 @@ static JSContext * MainJSContext = nil;
         if(v == nil) {
             v = [JSValue valueWithNullInContext:_jsFunction.context];
         }
-        [_jsFunction callWithArguments:@[v,keys]];
+        @try{
+            [_jsFunction callWithArguments:@[v,keys]];
+        }
+        @catch(NSException * ex) {
+            NSLog(@"[KK] %@",ex);
+        }
     }
 }
 
