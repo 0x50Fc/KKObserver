@@ -51,7 +51,7 @@
 }
 
 -(void) off:(NSArray *) keys fn:(JSValue *) func {
-    if(![func isObject]) {
+    if([func isUndefined] || [func isNull] || [func isNumber] || [func isString]) {
         func = nil;
     }
     [_observer off:keys fn:func context:(__bridge  void *)self];
