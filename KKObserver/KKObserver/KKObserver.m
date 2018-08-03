@@ -142,7 +142,11 @@
 
 -(void) on:(void (^)(NSArray * keys)) cb evaluateScript:(NSString *) evaluateScript {
     
-    NSRegularExpression * pattern = [NSRegularExpression regularExpressionWithPattern:@"[a-zA-Z][0-9a-zA-Z\\._]*" options:NSRegularExpressionCaseInsensitive error:nil];
+    static NSRegularExpression * pattern = nil;
+    
+    if(pattern == nil) {
+        pattern = [NSRegularExpression regularExpressionWithPattern:@"[a-zA-Z][0-9a-zA-Z\\._]*" options:NSRegularExpressionCaseInsensitive error:nil];
+    }
     
     NSString * v = [evaluateScript stringByReplacingOccurrencesOfString:@"\\'" withString:@""];
     
